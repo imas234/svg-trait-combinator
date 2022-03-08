@@ -1,0 +1,5 @@
+{
+    "bg": ["red", "pink"],
+    "head": ["square", "circle"],
+    "face": ["smile", "frown"]
+}

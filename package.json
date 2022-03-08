@@ -1,0 +1,12 @@
+{
+  "name": "trait-combinator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "demo": "node ./demo.js"
+  },
+  "author": "imas234",
+  "license": "ISC",
+  "type": "module"
+}
