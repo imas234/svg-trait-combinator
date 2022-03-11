@@ -1,18 +1,17 @@
 import { getConsistentFilePath, getDirectoryChildren, readFile, writeSVGToOutputDirectory } from "../read-write/index.js";
 
-const getSvgString = (insides) => {
-    return `
-    <svg
-    width="512"
-    height="512"
-    viewBox="0 0 135.46667 135.46667"
-    version="1.1"
-    id="svg5"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlns:svg="http://www.w3.org/2000/svg">
-        ${insides}
-    </svg>
-    `;
+const makeGetSvgString = (fullSvgString) => {
+    const firstCloseTagIndex = fullSvgString.indexOf('>');
+    const svgCloseTagIndex = fullSvgString.indexOf('</svg>');
+    
+    const startingTag = fullSvgString.substring(0, firstCloseTagIndex + 1);
+    const closingTag = fullSvgString.substring(svgCloseTagIndex);
+  
+    const getSvgString = (insides) => {
+      return startingTag + "\n" + insides + "\n" + closingTag;
+    };
+    
+    return getSvgString;
 }
 
 const getSvgInsides = (svgString = "") => {
@@ -22,12 +21,14 @@ const getSvgInsides = (svgString = "") => {
     return svgString.substring(firstCloseTagIndex + 1, svgCloseTagIndex);
 }
 
-const generateTraitSvgMap = (filepath) => {
+const generateSvgUtils = (filepath) => {
     const pathToSVGDirectories = getConsistentFilePath(filepath) + "input/svg";
 
     const traitToSVGMap = {};
     const traits = getDirectoryChildren(pathToSVGDirectories);
 
+    let getSvgString = null;
+  
     for (const trait of traits) {
         traitToSVGMap[trait] = {};
 
@@ -38,14 +39,18 @@ const generateTraitSvgMap = (filepath) => {
             const svgTraitId = traitSvgFile.replace(".svg", "");
             const svgTrait = readFile(filepathOfTrait + "/" + traitSvgFile);
 
+            if (!getSvgString) {
+                getSvgString = makeGetSvgString(svgTrait);
+            }
+
             traitToSVGMap[trait][svgTraitId] = getSvgInsides(svgTrait);
         }
     }
 
-    return traitToSVGMap;
+    return [traitToSVGMap, getSvgString];
 }
 
-const generateSvg = (traitCombination, svgMap) => {
+const generateSvg = (traitCombination, svgMap, getSvgString) => {
     const traits = Object.entries(traitCombination);
 
     let svgInsides = "";
@@ -60,10 +65,10 @@ const generateSvg = (traitCombination, svgMap) => {
 
 const generateSVGCombinations = (traitCombinations) => {
     const path = process.cwd();
-    const svgMap = generateTraitSvgMap(path);
+    const [svgMap, getSvgString] = generateSvgUtils(path);
 
     traitCombinations.forEach((traitCombination, index) => {
-        const svgString = generateSvg(traitCombination, svgMap);
+        const svgString = generateSvg(traitCombination, svgMap, getSvgString);
         writeSVGToOutputDirectory(svgString, index + ".svg", path);
     })
 };
