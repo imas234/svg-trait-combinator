@@ -5,11 +5,11 @@ export const getJsonFileData = (filepath) => {
     return JSON.parse(fileData.toString());
 };
 
-const makeOutputDirectory = (path) => {
+export const makeOutputDirectory = (path) => {
     try {
-        fs.mkdirSync(path + 'output');
-        fs.mkdirSync(path + 'output/json');
-        fs.mkdirSync(path + 'output/svg');
+        fs.mkdirSync(getConsistentFilePath(path) + 'output');
+        fs.mkdirSync(getConsistentFilePath(path) + 'output/json');
+        fs.mkdirSync(getConsistentFilePath(path) + 'output/svg');
     } catch (e) {
         if (e.errno === -17) {
             console.error('Output directory already exists. Try deleting it if the output is not as intended.');
@@ -29,13 +29,11 @@ export const readFile = (filePath) => fs.readFileSync(filePath).toString();
 
 export const writeJSONToOutputDirectory = (output, filename, filepath) => {
     const consistentFilePath = getConsistentFilePath(filepath);
-    makeOutputDirectory(consistentFilePath);
     fs.writeFileSync(consistentFilePath + 'output/json/' + filename, output);
 };
 
 export const writeSVGToOutputDirectory = (output, filename, filepath) => {
     const consistentFilePath = getConsistentFilePath(filepath);
-    makeOutputDirectory(consistentFilePath);
     fs.writeFileSync(consistentFilePath + 'output/svg/' + filename, output);
 };
 
