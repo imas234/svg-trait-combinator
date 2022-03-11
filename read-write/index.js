@@ -11,7 +11,9 @@ const makeOutputDirectory = (path) => {
         fs.mkdirSync(path + 'output/json');
         fs.mkdirSync(path + 'output/svg');
     } catch (e) {
-        if (e.errno !== -17) {
+        if (e.errno === -17) {
+            console.error('Output directory already exists. Try deleting it if the output is not as intended.');
+        } else {
             console.error('ERROR MAKING OUTPUT DIRECTORY:', e);
         }
     }
